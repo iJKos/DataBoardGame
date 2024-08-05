@@ -77,7 +77,7 @@ def set_log(level):
 
     :param level: Logging level to set.
     """
-    logger = logging.getLogger('DataBoardGame')
+    logger = logging.getLogger('DBG')
     # Stream/console output
     logger.handler = logging.StreamHandler(sys.stdout)
     logger.setLevel(level)
@@ -93,7 +93,7 @@ def log(msg):
 
     :param msg: Message to log.
     """
-    logger = logging.getLogger('AmazeballsLogger')
+    logger = logging.getLogger('DBG')
     logger.info(msg)
 
 
