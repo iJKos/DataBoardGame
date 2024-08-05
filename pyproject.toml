@@ -11,9 +11,8 @@ homepage = "https://github.com/iJKos/DataBoardGame"
 repository = "https://github.com/Toloka/DataBoardGame"
 documentation = "https://github.com/Toloka/DataBoardGame/README.md"
 keywords = ["python", "data", "board", "game"]
-packages = [
-    { include = "databoardgame" },
-]
+
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"

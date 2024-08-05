@@ -58,10 +58,7 @@ class QLearningPlayer(Player):
         max_potential_reward, _ = self.find_max_reward_action(game_state)
         current_q_value = self.q_learning_table[self.last_state][self.last_action]
 
-        updated_q_value = (
-            (1 - self.learning_rate) * current_q_value
-            + self.learning_rate * (reward + self.discount_factor * max_potential_reward)
-        )
+        updated_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward + self.discount_factor * max_potential_reward)
 
         self.q_learning_table[self.last_state][self.last_action] = updated_q_value
 
@@ -81,13 +78,7 @@ class GameFarm:
         self.players = []
 
         for _ in range(self.number_of_players):
-            self.players.append(
-                QLearningPlayer(
-                    learning_rate=0.8 + random() * 0.1,
-                    discount_factor=0.8 + random() * 0.1,
-                    random_rate=random() * 0.1
-                )
-            )
+            self.players.append(QLearningPlayer(learning_rate=0.8 + random() * 0.1, discount_factor=0.8 + random() * 0.1, random_rate=random() * 0.1))
 
     def learn(self):
         """Run the learning process for the players."""
