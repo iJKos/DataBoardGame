@@ -9,6 +9,7 @@ import copy
 from DataBoardGame.utils import create_queue_from_list, random_sort_queue
 from DataBoardGame.resources import ResourceType, ResourceConvertion, Resources, money_pay
 
+
 class CardDeck:
     """Class representing a deck of cards."""
 
@@ -109,7 +110,9 @@ class CardDeck:
         if self.card_queue.qsize() == 0:
             self.move_trash_cards_to_queue()
 
+
 EmployeeRoles = IntEnum('EmployeeRoles', 'DE SA BI BA PM')
+
 
 def basic_resource_conversion(coef):
     """Create a dictionary of basic resource conversions based on a coefficient."""
@@ -119,6 +122,7 @@ def basic_resource_conversion(coef):
         EmployeeRoles.BA: ResourceConvertion(resources_to_take=Resources(dashboards=coef), resource_to_give=Resources(insights=coef)),
         EmployeeRoles.SA: ResourceConvertion(resources_to_take=Resources(raw_data=coef), resource_to_give=Resources(marts=coef)),
     }
+
 
 class EmloyeeCard:
     """Class representing an employee card with role, salary, and resource conversion."""

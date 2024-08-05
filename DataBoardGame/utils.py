@@ -3,6 +3,7 @@ from queue import Queue
 import sys
 import logging
 
+
 def make_dict_hashable(d):
     """
     Convert a dictionary to a hashable frozenset of tuples.
@@ -14,6 +15,7 @@ def make_dict_hashable(d):
         raise TypeError('Expected a dictionary')
     # Recursively convert dictionary items to tuples and make them hashable
     return frozenset((key, make_value_hashable(value)) for key, value in sorted(d.items(), key=lambda item: item[0]))
+
 
 def make_value_hashable(value):
     """
@@ -29,6 +31,7 @@ def make_value_hashable(value):
     elif isinstance(value, set):
         return frozenset(make_value_hashable(v) for v in sorted(value, key=lambda item: item))
     return value
+
 
 # Function to randomly sort items in a queue
 def random_sort_queue(queue):
@@ -53,6 +56,7 @@ def random_sort_queue(queue):
 
     return queue
 
+
 # Function to create a queue from a list
 def create_queue_from_list(items):
     """
@@ -65,6 +69,7 @@ def create_queue_from_list(items):
     for item in items:
         queue.put(item)  # Enqueue each item
     return queue
+
 
 def set_log(level):
     """
@@ -81,6 +86,7 @@ def set_log(level):
     logger.handler.setFormatter(formatter)
     logger.addHandler(logger.handler)
 
+
 def log(msg):
     """
     Log a message at the INFO level.
@@ -89,6 +95,7 @@ def log(msg):
     """
     logger = logging.getLogger('AmazeballsLogger')
     logger.info(msg)
+
 
 def split_list_into_chunks(lst, chunk_size):
     """

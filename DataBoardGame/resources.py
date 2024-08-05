@@ -10,9 +10,11 @@ from typing import Type
 # Define an enumeration for ResourceType with specific resource types and starting index 0
 ResourceType = IntEnum('ResourceType', 'rawdata datamart dashboard insight money', start=0)
 
+
 @dataclass
 class Resources:
     """Class representing different types of resources."""
+
     raw_data: int = 0
     marts: int = 0
     dashboards: int = 0
@@ -177,9 +179,11 @@ class Resources:
         """Convert Resources object to dictionary."""
         return asdict(self)
 
+
 @dataclass
 class ResourceConvertion:
     """Class representing the conversion between different resources."""
+
     resources_to_take: Resources = Resources()
     resource_to_give: Resources = Resources()
 
@@ -214,9 +218,11 @@ class ResourceConvertion:
         """Create a hash based on the resources to give and take."""
         return hash((self.resource_to_give, self.resources_to_take))
 
+
 @dataclass
 class ResourceScale:
     """Class representing the scaling of resources."""
+
     resource_to_scale: ResourceType
     scale: float
     resources_to_scale_from: ResourceType
@@ -229,19 +235,17 @@ class ResourceScale:
         """Compare if resource scales are equal."""
         if not isinstance(other, ResourceScale):
             return NotImplemented
-        return (
-            self.resource_to_scale == other.resource_to_scale and
-            self.resources_to_scale_from == other.resources_to_scale_from and
-            self.scale == other.scale
-        )
+        return self.resource_to_scale == other.resource_to_scale and self.resources_to_scale_from == other.resources_to_scale_from and self.scale == other.scale
 
     def __hash__(self):
         """Create a hash based on the resource to scale, resources to scale from, and scale factor."""
         return hash((self.resource_to_scale, self.resources_to_scale_from, self.scale))
 
+
 def money_pay(amount: int):
     """Create a ResourceConvertion object representing payment with money."""
     return ResourceConvertion(resource_to_give=Resources(), resources_to_take=Resources(money=amount))
+
 
 def money_gain_per_insight(scale: float):
     """Create a ResourceScale object representing gaining money per insight."""
