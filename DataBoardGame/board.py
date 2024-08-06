@@ -178,7 +178,10 @@ class PlayerBoard:
         resource_gain = ResourceConvertion(Resources(), Resources())
         resource_gain += self.convertion_rules[resource_type]
         for empl in self.employees[resource_type_to_role_mapping(resource_type)]:
-            resource_gain += empl.basic_resource_conversion[resource_type_to_role_mapping(resource_type)]
+            if empl.role == resource_type_to_role_mapping(resource_type):
+                resource_gain += empl.motivated_resource_conversion[resource_type_to_role_mapping(resource_type)]
+            else:
+                resource_gain += empl.basic_resource_conversion[resource_type_to_role_mapping(resource_type)]
 
         self.resources.apply_resource_conversion(resource_gain)
         self.last_generated_resource = resource_type

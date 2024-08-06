@@ -114,30 +114,32 @@ class CardDeck:
 EmployeeRoles = IntEnum('EmployeeRoles', 'DE SA BI BA PM')
 
 
-def basic_resource_conversion(coef):
+def basic_res_conversion(take, give, money=0) -> dict:
     """Create a dictionary of basic resource conversions based on a coefficient."""
     return {
-        EmployeeRoles.DE: ResourceConvertion(resources_to_take=Resources(), resource_to_give=Resources(raw_data=coef)),
-        EmployeeRoles.BI: ResourceConvertion(resources_to_take=Resources(marts=coef), resource_to_give=Resources(dashboards=coef)),
-        EmployeeRoles.BA: ResourceConvertion(resources_to_take=Resources(dashboards=coef), resource_to_give=Resources(insights=coef)),
-        EmployeeRoles.SA: ResourceConvertion(resources_to_take=Resources(raw_data=coef), resource_to_give=Resources(marts=coef)),
+        EmployeeRoles.DE: ResourceConvertion(resources_to_take=Resources(money=money), resource_to_give=Resources(raw_data=give)),
+        EmployeeRoles.BI: ResourceConvertion(resources_to_take=Resources(marts=take, money=money), resource_to_give=Resources(dashboards=give)),
+        EmployeeRoles.BA: ResourceConvertion(resources_to_take=Resources(dashboards=take, money=money), resource_to_give=Resources(insights=give)),
+        EmployeeRoles.SA: ResourceConvertion(resources_to_take=Resources(raw_data=take, money=money), resource_to_give=Resources(marts=give)),
     }
 
 
 class EmloyeeCard:
     """Class representing an employee card with role, salary, and resource conversion."""
 
-    basic_resource_conversion = basic_resource_conversion(1)
+    basic_resource_conversion: dict = basic_res_conversion(1, 2)
+    motivated_resource_conversion: dict = basic_res_conversion(1, 1, 1)
     role: EmployeeRoles
     salary: ResourceConvertion = money_pay(1)
-    umotivated_salary: ResourceConvertion = money_pay(3)
     _hash: int = None
 
-    def __init__(self, role: EmployeeRoles, salary, basic_resource_conversion=None) -> None:
+    def __init__(self, role: EmployeeRoles, salary, basic_resource_conversion=None, motivated_resource_conversion=None) -> None:
         """Initialize the EmloyeeCard with a role, salary, and optional resource conversion."""
         self.role = role
         if basic_resource_conversion:
             self.basic_resource_conversion = basic_resource_conversion
+        if motivated_resource_conversion:
+            self.motivated_resource_conversion = motivated_resource_conversion
         self.salary = money_pay(salary)
         self._hash = hash(self)
 
@@ -151,6 +153,7 @@ class EmloyeeCard:
         """Convert the EmloyeeCard to a dictionary representation."""
         res = {}
         res['basic_resource_conversion'] = {str(key): value.to_dict() for key, value in self.basic_resource_conversion.items()}
+        res['motivated_resource_conversion'] = {str(key): value.to_dict() for key, value in self.motivated_resource_conversion.items()}
         res['role'] = str(self.role)
         res['salary'] = self.salary.to_dict()
         return res
@@ -167,56 +170,63 @@ class EmloyeeCard:
         """Generate a hash for the EmloyeeCard."""
         if self._hash:
             return self._hash
-        return hash((self.role, self.salary, self.umotivated_salary, frozenset(sorted(self.basic_resource_conversion.items()))))
+        return hash(
+            (
+                self.role,
+                self.salary,
+                frozenset(sorted(self.basic_resource_conversion.items())),
+                frozenset(sorted(self.motivated_resource_conversion.items())),
+            )
+        )
 
 
 employee_card_list = [
-    EmloyeeCard(EmployeeRoles.DE, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.DE, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.DE, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.DE, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.DE, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.DE, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.DE, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.DE, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.DE, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.DE, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.DE, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.DE, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.SA, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.SA, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.SA, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.SA, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.SA, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.SA, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.SA, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.SA, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.SA, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.SA, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.SA, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.SA, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.BA, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BA, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BA, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BA, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BA, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.BA, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.BA, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.BA, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.BA, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.BA, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.BA, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.BA, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.BI, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BI, 0, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BI, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BI, 1, basic_resource_conversion(1)),
-    EmloyeeCard(EmployeeRoles.BI, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.BI, 2, basic_resource_conversion(2)),
-    EmloyeeCard(EmployeeRoles.BI, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.BI, 3, basic_resource_conversion(3)),
-    EmloyeeCard(EmployeeRoles.BI, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.BI, 4, basic_resource_conversion(4)),
-    EmloyeeCard(EmployeeRoles.BI, 5, basic_resource_conversion(5)),
-    EmloyeeCard(EmployeeRoles.BI, 5, basic_resource_conversion(5)),
+    EmloyeeCard(EmployeeRoles.DE, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.DE, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.SA, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.BA, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 0, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 1, basic_res_conversion(1, 1, 1), basic_res_conversion(1, 2, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 2, basic_res_conversion(2, 2, 1), basic_res_conversion(2, 4, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 3, basic_res_conversion(3, 3, 1), basic_res_conversion(3, 6, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 4, basic_res_conversion(4, 4, 1), basic_res_conversion(4, 8, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
+    EmloyeeCard(EmployeeRoles.BI, 5, basic_res_conversion(5, 5, 1), basic_res_conversion(5, 10, 0)),
 ]
