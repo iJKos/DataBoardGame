@@ -160,14 +160,14 @@ class EmloyeeCard:
         if not isinstance(other, EmloyeeCard):
             return NotImplemented
         if self._hash:
-            return self._hash == other._hash
+            return self._hash == other._hash and self.role == other.role
         return self.basic_resource_conversion == other.basic_resource_conversion and self.role == other.role and self.salary == other.salary
 
     def __hash__(self) -> int:
         """Generate a hash for the EmloyeeCard."""
         if self._hash:
             return self._hash
-        return hash((self.role, self.salary, frozenset(sorted(self.basic_resource_conversion.items()))))
+        return hash((self.role, self.salary, self.umotivated_salary, frozenset(sorted(self.basic_resource_conversion.items()))))
 
 
 employee_card_list = [

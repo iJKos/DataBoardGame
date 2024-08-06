@@ -34,18 +34,20 @@ class QLearningPlayer(Player):
             self.update_q_table(game_state)
 
         if random() < (1 - self.random_rate):
-            _, max_action = self.find_max_reward_action(game_state)
+            _, max_action = self.find_max_reward_action(game_state, action_list)
             if max_action:
                 return max_action
 
         i = randint(0, len(action_list) - 1)
         return action_list[i]
 
-    def find_max_reward_action(self, game_state):
+    def find_max_reward_action(self, game_state, available_actions=None):
         """Find the action with the maximum reward for the given game state."""
         max_reward = float('-inf')
         max_action = None
         for action, reward in self.q_learning_table[game_state].items():
+            if available_actions and action not in available_actions:
+                continue
             if reward > max_reward:
                 max_reward = reward
                 max_action = action

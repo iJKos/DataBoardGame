@@ -14,22 +14,18 @@ class Action:
     A class to encapsulate an Player action consisting of a function and its parameters.
     """
 
-    _game: 'Game'
     _params: dict
-    _player: 'Player'
     _hash: int = None
 
-    def __init__(self, game, player, params):
-        self._game = game
+    def __init__(self, params):
         self._params = params
-        self._player = player
         self._hash = hash(self)
 
-    def action(self, player, **kwargs):
+    def action(self, game, player, **kwargs):
         raise NotImplemented()
 
-    def call_function(self):
-        self.action(player=self._player, **self._params)
+    def call_function(self, game, player):
+        self.action(game=game, player=player, **self._params)
 
     def __str__(self):
         return f'{type(self).__name__}(params={self._params})'
@@ -58,27 +54,27 @@ class Action:
 
 
 class GenerateRsourceAction(Action):
-    def action(self, player, resource_type):
-        self._game.players_board[player].action_pay_resource_to_player(resource_type)
+    def action(self, player, game, resource_type):
+        game.players_board[player].action_pay_resource_to_player(resource_type)
 
 
 class HireEmployeeAction(Action):
-    def action(self, player, employee, role):
-        self._game.players_board[player].hire_employee(employee, role)
-        self._game.game_board.employee_deck.get_open_card(employee)
+    def action(self, player, game, employee, role):
+        game.players_board[player].hire_employee(employee, role)
+        game.game_board.employee_deck.get_open_card(employee)
 
 
 class FireEmployeeAction(Action):
-    def action(self, player, employee, role):
-        self._game.players_board[player].fire_employee(employee)
-        self._game.game_board.employee_deck.return_card(employee)
+    def action(self, player, game, employee, role):
+        game.players_board[player].fire_employee(employee)
+        game.game_board.employee_deck.return_card(employee)
 
 
 class EmptyAction(Action):
-    def __init__(self, game=None, player=None, params={}):
-        super().__init__(game, player, params)
+    def __init__(self, params={}):
+        super().__init__(params)
 
-    def action(self, player):
+    def action(self, player, game):
         pass
 
 
@@ -145,7 +141,7 @@ class GameState:
             return NotImplemented
 
         if self._hash:
-            return self._hash == other._hash  # and self._dict==other._dict
+            return self._hash == other._hash and self._value == other._value
 
         return self.game_board == other.game_board and self.player_board == other.player_board and self.player_deck == other.player_deck
 
@@ -266,7 +262,7 @@ class Game:
             if item == ResourceType.money:
                 continue
             if self.players_board[player].check_pay_resource_to_player(item):
-                res_actions.append(GenerateRsourceAction(self, player, {'resource_type': item}))
+                res_actions.append(GenerateRsourceAction({'resource_type': item}))
 
         if len(res_actions) == 0 or not is_mandotory:
             res_actions.append(EmptyAction())
@@ -277,7 +273,7 @@ class Game:
 
         for card in self.game_board.employee_deck.open_cards:
             for role in self.players_board[player].get_available_roles():
-                res_actions.append(HireEmployeeAction(self, player, {'employee': card, 'role': role}))
+                res_actions.append(HireEmployeeAction({'employee': card, 'role': role}))
 
         if len(res_actions) == 0 or not is_mandotory:
             res_actions.append(EmptyAction())
@@ -289,7 +285,7 @@ class Game:
             res_actions.clear()
 
         for employee, role in self.players_board[player].get_employee_list():
-            res_actions.append(FireEmployeeAction(self, player, {'employee': employee, 'role': role}))
+            res_actions.append(FireEmployeeAction({'employee': employee, 'role': role}))
 
         if len(res_actions) == 0 or not is_mandotory:
             res_actions.append(EmptyAction())
@@ -302,9 +298,10 @@ class Game:
     def action_game_step(self, step_name, player, action_gen_function, is_mandotory=False):
         log(f'Game step: {step_name}')
         log(f'{self.game_board}')
-        decision = player.make_decision(self.get_player_state(player), action_gen_function(player, is_mandotory))
+        actions = action_gen_function(player, is_mandotory)
+        decision = player.make_decision(self.get_player_state(player), actions)
         log(decision)
-        decision.call_function()
+        decision.call_function(self, player)
         self.log_player_state(player)
 
     def next_game_step(self) -> int:
